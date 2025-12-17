@@ -13,8 +13,8 @@ on:
           - qa
           - staging
 
-  schedule:
-    - cron: "0 2 * * *"
+  #schedule:
+   # - cron: "0 2 * * *"
 
 jobs:
   api-tests:
