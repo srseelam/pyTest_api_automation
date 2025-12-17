@@ -3,7 +3,6 @@ import importlib
 import json
 import warnings
 from collections import defaultdict
-from py.xml import html
 from common.auth_flow import get_token
 from routes.products_api import ProductsAPI
 from routes.users_api import UsersAPI
@@ -154,26 +153,36 @@ def pytest_runtest_call(item):
     pytest.current_test_node = None
 
 def pytest_html_results_table_header(cells):
-    cells.insert(2, html.th("Response Code"))
-    cells.insert(3, html.th("Request"))
-    cells.insert(4, html.th("Response"))
-    cells.insert(5, html.th("Exception"))
+    cells.insert(2, "<th>Response Code</th>")
+    cells.insert(3, "<th>Request</th>")
+    cells.insert(4, "<th>Response</th>")
+    cells.insert(5, "<th>Exception</th>")
     
 def pytest_html_results_table_row(report, cells):
-    cells.insert(2, html.td(getattr(report, "response_code", "-")))
-    cells.insert(3, html.td(
-        html.pre(getattr(report, "request_data", "-"),
-                 style="max-height:200px;overflow:auto;white-space:pre-wrap")
-    ))
-    cells.insert(4, html.td(
-        html.pre(getattr(report, "response_data", "-"),
-                 style="max-height:200px;overflow:auto;white-space:pre-wrap")
-    ))
-    cells.insert(5, html.td(
-        html.pre(f"{getattr(report, 'exceptionType', '-')}: {getattr(report, 'exceptionMessage', '-')}",
-            style="max-height:200px;overflow:auto;white-space:pre-wrap")
-    ))
-    
+    response_code = response_code = getattr(report, "response_code")
+    request_data = "-"
+    response_data = "-"
+    exception = "-"
+    if report.failed and report:
+        request_data = getattr(report, "request_data")
+        response_data = getattr(report, "response_data")
+        exception = report.exceptionMessage    
+    cells.insert(2, f"<td>{response_code}</td>")
+    cells.insert(3, f"""
+        <td style="max-height:200px;overflow:auto;white-space:pre-wrap">
+        {request_data}
+        </td>
+        """)
+    cells.insert(4,f"""
+        <td style="max-height:200px;overflow:auto;white-space:pre-wrap">
+        {response_data}
+        </td>
+        """)
+    cells.insert(5, f"""
+        <td style="max-height:200px;overflow:auto;white-space:pre-wrap">
+        {exception}
+        </td>
+        """)    
      
 def pytest_metadata(metadata):
     metadata.clear()
