@@ -1,0 +1,45 @@
+name: API Automation Tests
+
+on:
+  workflow_dispatch:
+    inputs:
+      environment:
+        description: "Target environment"
+        required: true
+        default: "qa"
+        type: choice
+        options:
+          - dev
+          - qa
+          - staging
+
+  schedule:
+    - cron: "0 2 * * *"
+
+jobs:
+  api-tests:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repo
+        uses: actions/checkout@v3
+
+      - name: Setup Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: "3.10"
+
+      - name: Install dependencies
+        run: pip install -r requirements.txt
+
+      - name: Run pytest
+        run: |
+          pytest --env=${{ github.event.inputs.environment || 'qa' }} \
+                 --html=report.html \
+                 --self-contained-html
+
+      - name: Upload HTML report
+        uses: actions/upload-artifact@v3
+        with:
+          name: api-test-report
+          path: report.html
