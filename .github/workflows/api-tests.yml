@@ -37,7 +37,8 @@ jobs:
           pytest --env=${{ github.event.inputs.environment || 'qa' }} \
                  --html=report.html \
                  --self-contained-html
-
+        env:
+          PYTHONPATH: ${{ github.workspace }}
       - name: Upload HTML report
         uses: actions/upload-artifact@v4
         with:
